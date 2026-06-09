@@ -7,6 +7,8 @@ import { achievementsRouter } from './api/achievements/router.js';
 import { healthRouter } from './api/health/router.js';
 import { passportRouter } from './api/passport/router.js';
 import { reputationRouter } from './api/reputation/router.js';
+import { isBittensorDataUnavailableError } from './blockchain/bittensor/errors.js';
+import { sendApiError } from './utils/http.js';
 
 dotenv.config();
 
@@ -25,7 +27,12 @@ app.use('/api/reputation', reputationRouter);
 
 app.use((error: Error, _request: express.Request, response: express.Response, next: express.NextFunction) => {
   void next;
-  response.status(500).json({ error: error.message });
+
+  if (isBittensorDataUnavailableError(error)) {
+    return sendApiError(response, 503, error.code, error.message, error.retryable, error.source);
+  }
+
+  return sendApiError(response, 500, 'INTERNAL_SERVER_ERROR', error.message, false, 'api');
 });
 
 app.listen(port, () => {

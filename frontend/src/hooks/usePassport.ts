@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { TaoPassport } from '@tao-passport/shared-types';
-import { passportApi } from '../services/api';
+import { ApiRequestError, passportApi } from '../services/api';
 
 type PassportState = {
   data: TaoPassport | null;
-  error: string | null;
+  error: ApiRequestError | Error | null;
   loading: boolean;
 };
 
@@ -15,7 +15,13 @@ export function useSamplePassport(): PassportState {
     passportApi
       .getSamplePassport()
       .then((data) => setState({ data, error: null, loading: false }))
-      .catch((error: Error) => setState({ data: null, error: error.message, loading: false }));
+      .catch((error: Error) =>
+        setState((current) => ({
+          data: current.data,
+          error,
+          loading: false,
+        })),
+      );
   }, []);
 
   return state;

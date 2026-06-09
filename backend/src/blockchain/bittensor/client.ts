@@ -1,3 +1,5 @@
+import { BittensorDataUnavailableError } from './errors.js';
+
 export type ChainWalletSnapshot = {
   walletAddress: string;
   validatorScore: number;
@@ -7,7 +9,17 @@ export type ChainWalletSnapshot = {
   firstSeenAt: string;
 };
 
+export function assertBittensorDataAvailable() {
+  if (process.env.TAO_PASSPORT_FORCE_BITTENSOR_UNAVAILABLE === 'true') {
+    throw new BittensorDataUnavailableError(
+      'Bittensor data is temporarily unavailable. Please retry after the chain adapter reconnects.',
+    );
+  }
+}
+
 export async function getWalletSnapshot(walletAddress: string): Promise<ChainWalletSnapshot> {
+  assertBittensorDataAvailable();
+
   return {
     walletAddress,
     validatorScore: 92,
