@@ -1,3 +1,9 @@
+import { canonicalizeWalletAddress } from '@tao-passport/shared-utils';
+
 export function isSubstrateAddress(address: string): boolean {
-  return /^[1-9A-HJ-NP-Za-km-z]{40,64}$/.test(address);
+  return canonicalizeWalletAddress(address) !== null;
+}
+
+export function normalizeSubstrateAddress(address: string): string | null {
+  return canonicalizeWalletAddress(address);
 }

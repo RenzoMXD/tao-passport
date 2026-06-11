@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import type { ApiErrorCode, ApiErrorPayload, LeaderboardEntry, TaoPassport } from '@tao-passport/shared-types';
+=======
+import type { LeaderboardEntry, TaoPassport } from '@tao-passport/shared-types';
+import { normalizeWalletAddress } from './wallet';
+>>>>>>> 3d30bfe7b19a81cc60c75aebff2b33d23861efe5
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
 
@@ -60,6 +65,7 @@ async function getJson<T>(path: string): Promise<T> {
 
 export const passportApi = {
   getSamplePassport: () => getJson<TaoPassport>('/api/passport/sample'),
-  getPassport: (walletAddress: string) => getJson<TaoPassport>(`/api/passport/${walletAddress}`),
+  getPassport: (walletAddress: string) =>
+    getJson<TaoPassport>(`/api/passport/${encodeURIComponent(normalizeWalletAddress(walletAddress))}`),
   getLeaderboard: () => getJson<LeaderboardEntry[]>('/api/reputation/leaderboard'),
 };
