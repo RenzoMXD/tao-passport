@@ -10,6 +10,26 @@ export function ActivityTimeline({ events }: { events: TimelineEvent[] }) {
             <p className="text-sm text-blue-200">{new Date(event.occurredAt).toLocaleDateString()}</p>
             <h3 className="mt-1 font-semibold text-white">{event.title}</h3>
             <p className="mt-1 text-sm text-slate-300">{event.description}</p>
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
+              <span>Source {event.provenance.sourceCategory}</span>
+              <span>Observed {new Date(event.provenance.observedAt).toLocaleDateString()}</span>
+              <span>Ref {event.provenance.reference ?? event.provenance.sourceId}</span>
+            </div>
+            {event.provenance.evidenceLinks && event.provenance.evidenceLinks.length > 0 ? (
+              <div className="mt-1 flex flex-wrap gap-3 text-xs">
+                {event.provenance.evidenceLinks.map((link) => (
+                  <a
+                    key={`${event.id}-${link.url}`}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-300 transition hover:text-blue-200"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </article>
         ))}
       </div>

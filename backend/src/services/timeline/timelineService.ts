@@ -1,4 +1,6 @@
-import type { TimelineEvent } from '@tao-passport/shared-types';
+import type { ProvenanceMetadata, TimelineEvent } from '@tao-passport/shared-types';
+
+const timelineScoringModelVersion = 'tao-passport-reputation/v1';
 
 const timelineSourcePriority: Record<TimelineEvent['source'], number> = {
   chain: 0,
@@ -16,6 +18,28 @@ function normalizeTimelineEvent(event: TimelineEvent): TimelineEvent {
   return {
     ...event,
     occurredAt: occurredAt.toISOString(),
+    provenance: {
+      ...event.provenance,
+      observedAt: new Date(event.provenance.observedAt).toISOString(),
+    },
+  };
+}
+
+function buildTimelineProvenance(
+  sourceCategory: TimelineEvent['source'],
+  sourceId: string,
+  observedAt: string,
+  reference: string,
+  evidenceLinks?: ProvenanceMetadata['evidenceLinks'],
+): ProvenanceMetadata {
+  return {
+    sourceCategory,
+    sourceId,
+    reference,
+    observedAt,
+    scoringModelVersion: timelineScoringModelVersion,
+    confidence: sourceCategory === 'community' ? 'medium' : 'high',
+    evidenceLinks,
   };
 }
 
@@ -58,6 +82,13 @@ export function getDemoTimeline(): TimelineEvent[] {
         description: 'Validator reliability contributed to the wallet reputation model.',
         occurredAt: '2024-06-10T00:00:00.000Z',
         source: 'chain',
+        provenance: buildTimelineProvenance(
+          'chain',
+          'wallet:sample:validator-activity',
+          '2026-06-08T14:15:00.000Z',
+          'validator-activity-fixture',
+          [{ label: 'Methodology', url: 'https://github.com/RenzoMXD/tao-passport/blob/main/docs/reputation-system.md' }],
+        ),
       },
       {
         id: 'first-seen',
@@ -65,6 +96,12 @@ export function getDemoTimeline(): TimelineEvent[] {
         description: 'Wallet began accumulating public Bittensor ecosystem history.',
         occurredAt: '2023-02-01',
         source: 'chain',
+        provenance: buildTimelineProvenance(
+          'chain',
+          'wallet:sample:first-seen',
+          '2023-02-01T00:00:00.000Z',
+          'wallet-first-seen-fixture',
+        ),
       },
     ],
     [
@@ -74,6 +111,13 @@ export function getDemoTimeline(): TimelineEvent[] {
         description: 'Developer activity was mapped into the passport achievement graph.',
         occurredAt: '2025-09-14T00:00:00.000Z',
         source: 'gittensor',
+        provenance: buildTimelineProvenance(
+          'gittensor',
+          'wallet:sample:gittensor-contribution',
+          '2026-06-06T18:30:00.000Z',
+          'gittensor-contribution-fixture',
+          [{ label: 'Issue #22 context', url: 'https://github.com/RenzoMXD/tao-passport/pull/22' }],
+        ),
       },
     ],
   );

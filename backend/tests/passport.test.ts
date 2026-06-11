@@ -11,6 +11,8 @@ test('builds passport with subnet participation and profile metadata', async () 
   assert.equal(passport.subnetParticipation[0]?.recentActivity.length > 0, true);
   assert.match(passport.profileMetadata.cache.cachedAt, /\d{4}-\d{2}-\d{2}T/);
   assert.equal(passport.profileMetadata.governanceVotes > 0, true);
+  assert.equal(passport.reputationSignals.every((signal) => signal.provenance.sourceId.length > 0), true);
+  assert.equal(passport.timeline.every((event) => event.provenance.sourceId.length > 0), true);
 });
 
 test('buildPassport exposes normalized GitTensor contribution fields', async () => {

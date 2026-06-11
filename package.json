@@ -10,10 +10,16 @@
     "frontend"
   ],
   "scripts": {
+    "build:shared": "npm run build --workspace @tao-passport/shared-types && npm run build --workspace @tao-passport/shared-utils",
+    "postinstall": "npm run build:shared",
+    "predev": "npm run build:shared",
     "dev": "npm run dev --workspace frontend & npm run dev --workspace backend",
+    "prebuild": "npm run build:shared",
     "build": "npm run build --workspaces --if-present",
+    "pretest": "npm run build:shared",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
+    "pretypecheck": "npm run build:shared",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "keywords": [

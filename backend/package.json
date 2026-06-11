@@ -9,7 +9,7 @@
     "start": "node dist/src/server.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test dist/tests/*.test.js"
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@tao-passport/shared-types": "0.1.0",

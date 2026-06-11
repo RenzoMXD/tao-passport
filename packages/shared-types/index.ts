@@ -10,4 +10,11 @@ export type {
   TaoPassport,
   TimelineEvent,
 } from './passport.js';
-export type { LeaderboardEntry, ReputationSignal } from './reputation.js';
+export type {
+  LeaderboardEntry,
+  ProvenanceConfidence,
+  ProvenanceEvidenceLink,
+  ProvenanceMetadata,
+  ProvenanceSourceCategory,
+  ReputationSignal,
+} from './reputation.js';

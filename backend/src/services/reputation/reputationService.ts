@@ -1,26 +1,162 @@
-import type { LeaderboardEntry, ReputationSignal } from '@tao-passport/shared-types';
+import type { LeaderboardEntry, ProvenanceMetadata, ReputationSignal } from '@tao-passport/shared-types';
 import { weightedAverage } from '@tao-passport/shared-utils';
 import { formatSubnetRole, getWalletSnapshot } from '../../blockchain/bittensor/client.js';
 
 type ReputationSignalInput = {
+  walletAddress: string;
   validatorScore: number;
   minerScore: number;
   governanceVotes: number;
-  subnetsParticipated: number;
+  subnetParticipation: Array<{
+    subnetId: number;
+    role: string;
+    contributionWeight: number;
+    lastSeenAt: string;
+  }>;
   communityScore: number;
+  observedAt: string;
 };
+
+export const reputationScoringModelVersion = 'tao-passport-reputation/v1';
+
+function toIsoTimestamp(value: string): string {
+  return new Date(value).toISOString();
+}
+
+function getObservedAtFromRoles(
+  subnetParticipation: ReputationSignalInput['subnetParticipation'],
+  roles: string[],
+  fallbackObservedAt: string,
+): string {
+  const timestamps = subnetParticipation
+    .filter((entry) => roles.includes(entry.role))
+    .map((entry) => Date.parse(entry.lastSeenAt))
+    .filter((timestamp) => !Number.isNaN(timestamp));
+
+  if (timestamps.length === 0) {
+    return fallbackObservedAt;
+  }
+
+  return new Date(Math.max(...timestamps)).toISOString();
+}
+
+function buildSignalProvenance(
+  sourceCategory: ReputationSignal['source'],
+  sourceId: string,
+  observedAt: string,
+  reference: string,
+  evidenceLinks?: ProvenanceMetadata['evidenceLinks'],
+): ProvenanceMetadata {
+  return {
+    sourceCategory,
+    sourceId,
+    reference,
+    observedAt: toIsoTimestamp(observedAt),
+    scoringModelVersion: reputationScoringModelVersion,
+    confidence: sourceCategory === 'community' ? 'medium' : 'high',
+    evidenceLinks,
+  };
+}
 
 export function buildReputationSignals(input: ReputationSignalInput): ReputationSignal[] {
   const governanceScore = Math.min(100, 60 + input.governanceVotes * 2);
-  const subnetScore = Math.min(100, 55 + input.subnetsParticipated * 7);
+  const subnetScore = Math.min(100, 55 + input.subnetParticipation.length * 7);
+  const validatorObservedAt = getObservedAtFromRoles(input.subnetParticipation, ['validator'], input.observedAt);
+  const minerObservedAt = getObservedAtFromRoles(input.subnetParticipation, ['miner'], input.observedAt);
+  const subnetObservedAt = getObservedAtFromRoles(
+    input.subnetParticipation,
+    ['validator', 'miner', 'delegate', 'builder'],
+    input.observedAt,
+  );
+  const evidenceLinks = [
+    {
+      label: 'Methodology',
+      url: 'https://github.com/RenzoMXD/tao-passport/blob/main/docs/reputation-system.md',
+    },
+  ];
 
   return [
-    { name: 'Validator reliability', score: input.validatorScore, weight: 0.28, source: 'chain' },
-    { name: 'Miner participation', score: input.minerScore, weight: 0.16, source: 'chain' },
-    { name: 'Governance activity', score: governanceScore, weight: 0.14, source: 'chain' },
-    { name: 'Subnet participation', score: subnetScore, weight: 0.12, source: 'derived' },
-    { name: 'GitTensor contribution', score: 94, weight: 0.25, source: 'gittensor' },
-    { name: 'Community signal', score: input.communityScore, weight: 0.05, source: 'community' },
+    {
+      name: 'Validator reliability',
+      score: input.validatorScore,
+      weight: 0.28,
+      source: 'chain',
+      provenance: buildSignalProvenance(
+        'chain',
+        `wallet:${input.walletAddress}:validator`,
+        validatorObservedAt,
+        'validator-reliability-fixture',
+        evidenceLinks,
+      ),
+    },
+    {
+      name: 'Miner participation',
+      score: input.minerScore,
+      weight: 0.16,
+      source: 'chain',
+      provenance: buildSignalProvenance(
+        'chain',
+        `wallet:${input.walletAddress}:miner`,
+        minerObservedAt,
+        'miner-participation-fixture',
+        evidenceLinks,
+      ),
+    },
+    {
+      name: 'Governance activity',
+      score: governanceScore,
+      weight: 0.14,
+      source: 'chain',
+      provenance: buildSignalProvenance(
+        'chain',
+        `wallet:${input.walletAddress}:governance`,
+        input.observedAt,
+        'governance-vote-fixture',
+        evidenceLinks,
+      ),
+    },
+    {
+      name: 'Subnet participation',
+      score: subnetScore,
+      weight: 0.12,
+      source: 'derived',
+      provenance: buildSignalProvenance(
+        'derived',
+        `wallet:${input.walletAddress}:subnet-participation`,
+        subnetObservedAt,
+        'subnet-participation-aggregate',
+        evidenceLinks,
+      ),
+    },
+    {
+      name: 'GitTensor contribution',
+      score: 94,
+      weight: 0.25,
+      source: 'gittensor',
+      provenance: buildSignalProvenance(
+        'gittensor',
+        `wallet:${input.walletAddress}:gittensor`,
+        '2026-06-06T18:30:00.000Z',
+        'gittensor-contribution-fixture',
+        [
+          ...evidenceLinks,
+          { label: 'Issue #22 context', url: 'https://github.com/RenzoMXD/tao-passport/pull/22' },
+        ],
+      ),
+    },
+    {
+      name: 'Community signal',
+      score: input.communityScore,
+      weight: 0.05,
+      source: 'community',
+      provenance: buildSignalProvenance(
+        'community',
+        `wallet:${input.walletAddress}:community`,
+        '2026-06-05T12:00:00.000Z',
+        'community-signal-fixture',
+        evidenceLinks,
+      ),
+    },
   ];
 }
 
@@ -43,11 +179,13 @@ export async function getDemoLeaderboard(): Promise<LeaderboardEntry[]> {
         .slice()
         .sort((left, right) => right.contributionWeight - left.contributionWeight)[0]?.role;
       const signals = buildReputationSignals({
+        walletAddress,
         validatorScore: snapshot.value.validatorScore,
         minerScore: snapshot.value.minerScore,
         governanceVotes: snapshot.value.governanceVotes,
-        subnetsParticipated: subnetCount,
+        subnetParticipation: snapshot.value.subnetParticipation,
         communityScore: snapshot.value.communityScore,
+        observedAt: snapshot.cache.cachedAt,
       });
 
       return {
