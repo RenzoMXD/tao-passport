@@ -5,7 +5,7 @@ TAO Passport is structured as a TypeScript monorepo with separate frontend, back
 ## System Flow
 
 1. A user enters or opens a Bittensor wallet address.
-2. The backend resolves chain, GitTensor, governance, subnet, and community signals.
+2. The backend resolves chain, governance, subnet, and community signals.
 3. The reputation service calculates weighted trust signals.
 4. The achievement service maps historical behavior into badges.
 5. The frontend renders a wallet passport, timeline, achievements, and leaderboard.
