@@ -33,7 +33,7 @@ TAO Passport is an initial full-stack scaffold for a Bittensor wallet reputation
 | Surface | Purpose |
 | --- | --- |
 | Wallet passport | A public profile for a TAO wallet with level, score, summary, and activity history. |
-| Reputation engine | Weighted signals from validator/miner activity, subnet participation, governance, GitTensor, and community behavior. |
+| Reputation engine | Weighted signals from validator/miner activity, subnet participation, governance and community behavior. |
 | Achievement system | Badges for durable ecosystem participation such as validating, mining, voting, building, and contributing. |
 | Timeline | Chronological wallet activity across chain, subnet, contribution, and community events. |
 | Leaderboard | Discovery surface for high-signal Bittensor ecosystem participants. |
@@ -51,7 +51,7 @@ The current implementation is a realistic product scaffold with demo data, API b
 
 ## Why TAO Passport
 
-Bittensor activity is spread across wallets, validators, miners, subnets, governance, GitHub/GitTensor contributions, and community channels. That makes it difficult to answer practical questions:
+Bittensor activity is spread across wallets, validators, miners, subnets, governance, GitHub contributions, and community channels. That makes it difficult to answer practical questions:
 
 - Has this wallet participated consistently over time?
 - Is this address connected to validator, miner, or builder activity?
@@ -204,7 +204,7 @@ TAO Passport is designed around explainable reputation. A score should be tracea
 | Validator reliability | uptime, consistency, subnet performance | Shows operational trust and long-term network contribution. |
 | Miner participation | mining history, subnet role, recent activity | Captures durable work across Bittensor subnets. |
 | Governance activity | proposal voting, participation frequency | Identifies protocol-level engagement. |
-| GitTensor contribution | merged PRs, reviews, issue work, recency | Rewards builder activity and open-source contribution. |
+| Contribution | merged PRs, reviews, issue work, recency | Rewards builder activity and open-source contribution. |
 | Community signal | durable non-code contribution, ecosystem support | Adds context outside pure chain metrics. |
 
 See `docs/reputation-system.md` for the starter scoring principles.
@@ -229,13 +229,13 @@ Read more in `docs/architecture.md`.
 
 - TAO Passport should never require wallet custody or private keys.
 - Public profiles should explain signal sources and freshness.
-- GitHub or GitTensor integrations should avoid exposing private contribution context.
+- GitHub integrations should avoid exposing private contribution context.
 - Reputation scores should be transparent, versioned, and auditable.
 - Public endpoints should use validation, rate limits, and cache controls before production use.
 
 ---
 
-## Useful Docs
+## Docs
 
 - [Architecture](docs/architecture.md)
 - [Reputation System](docs/reputation-system.md)
