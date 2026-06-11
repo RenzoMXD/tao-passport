@@ -8,11 +8,13 @@ export async function buildPassport(walletAddress: string): Promise<TaoPassport>
   const snapshot = await getWalletSnapshot(walletAddress);
   const subnetParticipation = await getWalletSubnetParticipation(walletAddress);
   const reputationSignals = buildReputationSignals({
+    walletAddress,
     validatorScore: snapshot.value.validatorScore,
     minerScore: snapshot.value.minerScore,
     governanceVotes: snapshot.value.governanceVotes,
-    subnetsParticipated: subnetParticipation.length,
+    subnetParticipation,
     communityScore: snapshot.value.communityScore,
+    observedAt: snapshot.cache.cachedAt,
   });
   const yearsActive = Math.max(
     0.1,

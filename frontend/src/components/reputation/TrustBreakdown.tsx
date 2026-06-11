@@ -14,6 +14,28 @@ export function TrustBreakdown({ signals }: { signals: ReputationSignal[] }) {
             <div className="mt-2 h-2 rounded-full bg-slate-800">
               <div className="h-2 rounded-full bg-emerald-400" style={{ width: `${signal.score}%` }} />
             </div>
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
+              <span>Source {signal.provenance.sourceCategory}</span>
+              <span>Confidence {signal.provenance.confidence}</span>
+              <span>Observed {new Date(signal.provenance.observedAt).toLocaleDateString()}</span>
+              <span>Model {signal.provenance.scoringModelVersion}</span>
+              <span>Ref {signal.provenance.reference ?? signal.provenance.sourceId}</span>
+            </div>
+            {signal.provenance.evidenceLinks && signal.provenance.evidenceLinks.length > 0 ? (
+              <div className="mt-1 flex flex-wrap gap-3 text-xs">
+                {signal.provenance.evidenceLinks.map((link) => (
+                  <a
+                    key={`${signal.name}-${link.url}`}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-300 transition hover:text-blue-200"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
         ))}
       </div>

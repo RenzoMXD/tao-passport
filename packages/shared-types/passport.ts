@@ -1,5 +1,5 @@
 import type { Achievement } from './achievement.js';
-import type { ReputationSignal } from './reputation.js';
+import type { ProvenanceMetadata, ReputationSignal } from './reputation.js';
 
 export type SubnetRole = 'validator' | 'miner' | 'delegate' | 'builder';
 
@@ -31,6 +31,7 @@ export type TimelineEvent = {
   description: string;
   occurredAt: string;
   source: 'chain' | 'gittensor' | 'community';
+  provenance: ProvenanceMetadata;
 };
 
 export type TaoPassport = {

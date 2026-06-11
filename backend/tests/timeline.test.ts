@@ -11,6 +11,13 @@ test('normalizes timestamps and sorts merged timeline events deterministically',
       description: 'Community event',
       occurredAt: '2026-01-05T00:00:00.000Z',
       source: 'community',
+      provenance: {
+        sourceCategory: 'community',
+        sourceId: 'community:event:1',
+        observedAt: '2026-01-05T00:00:00.000Z',
+        scoringModelVersion: 'tao-passport-reputation/v1',
+        confidence: 'medium',
+      },
     },
     {
       id: 'chain-1',
@@ -18,6 +25,13 @@ test('normalizes timestamps and sorts merged timeline events deterministically',
       description: 'Chain event',
       occurredAt: '2025-01-03',
       source: 'chain',
+      provenance: {
+        sourceCategory: 'chain',
+        sourceId: 'chain:event:1',
+        observedAt: '2025-01-03',
+        scoringModelVersion: 'tao-passport-reputation/v1',
+        confidence: 'high',
+      },
     },
     {
       id: 'gittensor-1',
@@ -25,6 +39,13 @@ test('normalizes timestamps and sorts merged timeline events deterministically',
       description: 'GitTensor event',
       occurredAt: '2026-01-05',
       source: 'gittensor',
+      provenance: {
+        sourceCategory: 'gittensor',
+        sourceId: 'gittensor:event:1',
+        observedAt: '2026-01-05',
+        scoringModelVersion: 'tao-passport-reputation/v1',
+        confidence: 'high',
+      },
     },
     {
       id: 'chain-2',
@@ -32,6 +53,13 @@ test('normalizes timestamps and sorts merged timeline events deterministically',
       description: 'Chain event',
       occurredAt: '2026-01-05T00:00:00.000Z',
       source: 'chain',
+      provenance: {
+        sourceCategory: 'chain',
+        sourceId: 'chain:event:2',
+        observedAt: '2026-01-05T00:00:00.000Z',
+        scoringModelVersion: 'tao-passport-reputation/v1',
+        confidence: 'high',
+      },
     },
   ];
 
@@ -57,6 +85,13 @@ test('buildTimeline flattens service outputs before sorting', () => {
         description: 'Later event',
         occurredAt: '2025-10-01T00:00:00.000Z',
         source: 'gittensor',
+        provenance: {
+          sourceCategory: 'gittensor',
+          sourceId: 'gittensor:event:later',
+          observedAt: '2025-10-01T00:00:00.000Z',
+          scoringModelVersion: 'tao-passport-reputation/v1',
+          confidence: 'high',
+        },
       },
     ],
     [
@@ -66,6 +101,13 @@ test('buildTimeline flattens service outputs before sorting', () => {
         description: 'Earlier event',
         occurredAt: '2024-10-01T00:00:00.000Z',
         source: 'chain',
+        provenance: {
+          sourceCategory: 'chain',
+          sourceId: 'chain:event:earlier',
+          observedAt: '2024-10-01T00:00:00.000Z',
+          scoringModelVersion: 'tao-passport-reputation/v1',
+          confidence: 'high',
+        },
       },
     ],
   );
@@ -81,4 +123,11 @@ test('getDemoTimeline returns ordered server-side timeline data', () => {
     getDemoTimeline().map((event) => event.id),
     ['first-seen', 'validator-active', 'gittensor-contribution'],
   );
+});
+
+test('getDemoTimeline includes provenance metadata', () => {
+  const timeline = getDemoTimeline();
+
+  assert.equal(timeline.every((event) => event.provenance.scoringModelVersion === 'tao-passport-reputation/v1'), true);
+  assert.equal(timeline.every((event) => event.provenance.sourceId.length > 0), true);
 });
