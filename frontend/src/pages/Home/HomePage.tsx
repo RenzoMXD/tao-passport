@@ -18,8 +18,8 @@ export function HomePage({ passport, onOpenPassport }: HomePageProps) {
             Every TAO wallet deserves a story.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-            TAO Passport turns wallet history, validator performance, subnet participation, GitTensor contributions,
-            governance activity, and community signals into portable reputation profiles.
+            TAO Passport turns wallet history, validator performance, subnet participation, governance activity, and
+            community signals into portable reputation profiles.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <button
@@ -42,8 +42,8 @@ export function HomePage({ passport, onOpenPassport }: HomePageProps) {
       </section>
       <section className="mt-16 grid gap-4 md:grid-cols-3">
         <Feature icon={<Shield />} title="Trust Score" text="Aggregates durable on-chain and ecosystem signals into a transparent score." />
-        <Feature icon={<Sparkles />} title="Achievements" text="Rewards validators, miners, voters, builders, and long-term community contributors." />
-        <Feature icon={<Network />} title="Subnet History" text="Builds a readable participation graph across Bittensor subnets and GitTensor repos." />
+        <Feature icon={<Sparkles />} title="Achievements" text="Rewards validators, miners, voters, delegates, and long-term community contributors." />
+        <Feature icon={<Network />} title="Subnet History" text="Builds a readable participation graph across Bittensor subnets and wallet roles." />
       </section>
     </main>
   );

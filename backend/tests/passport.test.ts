@@ -15,12 +15,9 @@ test('builds passport with subnet participation and profile metadata', async () 
   assert.equal(passport.timeline.every((event) => event.provenance.sourceId.length > 0), true);
 });
 
-test('buildPassport exposes normalized GitTensor contribution fields', async () => {
+test('buildPassport keeps wallet-centric fields without external contribution data', async () => {
   const passport = await buildPassport(sampleWalletAddress);
 
-  assert.equal(passport.gitTensor.totalContributions, 128);
-  assert.equal(passport.gitTensor.mergedPullRequests, 23);
-  assert.equal(passport.gitTensor.contributionFreshness, 'fresh');
-  assert.equal(passport.gitTensor.repositories.length, 3);
-  assert.equal(passport.gitTensor.recentActivity[0]?.type, 'pull_request');
+  assert.equal(passport.summary.includes('contribution'), false);
+  assert.equal(passport.reputationSignals.some((signal) => signal.name === 'Contribution'), false);
 });

@@ -38,7 +38,7 @@ const walletFixtures: Record<string, Omit<ChainWalletSnapshot, 'walletAddress'>>
     firstSeenAt: '2023-02-01T00:00:00.000Z',
     subnetParticipation: [
       { subnetId: 1, role: 'validator', contributionWeight: 0.91, lastSeenAt: '2026-06-08T14:15:00.000Z' },
-      { subnetId: 8, role: 'builder', contributionWeight: 0.84, lastSeenAt: '2026-06-07T09:30:00.000Z' },
+      { subnetId: 8, role: 'delegate', contributionWeight: 0.84, lastSeenAt: '2026-06-07T09:30:00.000Z' },
       { subnetId: 19, role: 'miner', contributionWeight: 0.73, lastSeenAt: '2026-06-08T22:05:00.000Z' },
     ],
   },
@@ -61,14 +61,14 @@ const walletFixtures: Record<string, Omit<ChainWalletSnapshot, 'walletAddress'>>
     firstSeenAt: '2023-05-12T00:00:00.000Z',
     subnetParticipation: [
       { subnetId: 1, role: 'delegate', contributionWeight: 0.66, lastSeenAt: '2026-06-06T11:05:00.000Z' },
-      { subnetId: 8, role: 'builder', contributionWeight: 0.71, lastSeenAt: '2026-06-05T16:22:00.000Z' },
+      { subnetId: 8, role: 'delegate', contributionWeight: 0.71, lastSeenAt: '2026-06-05T16:22:00.000Z' },
     ],
   },
 };
 
 const subnetMetadataFixtures: Record<number, SubnetMetadata> = {
   1: { subnetId: 1, recentActivity: 'Validator emissions remained above network median this week.' },
-  8: { subnetId: 8, recentActivity: 'Builder activity included repository reviews and deployment updates.' },
+  8: { subnetId: 8, recentActivity: 'Delegate participation remained active across recent governance cycles.' },
   19: { subnetId: 19, recentActivity: 'Miner submissions stayed active through the latest scoring window.' },
   27: { subnetId: 27, recentActivity: 'Subnet participation expanded with durable miner uptime.' },
 };

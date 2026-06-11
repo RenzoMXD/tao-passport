@@ -4,8 +4,7 @@ const timelineScoringModelVersion = 'tao-passport-reputation/v1';
 
 const timelineSourcePriority: Record<TimelineEvent['source'], number> = {
   chain: 0,
-  gittensor: 1,
-  community: 2,
+  community: 1,
 };
 
 function normalizeTimelineEvent(event: TimelineEvent): TimelineEvent {
@@ -106,10 +105,11 @@ export function getDemoTimeline(): TimelineEvent[] {
     ],
     [
       {
-        id: 'gittensor-contribution',
-        title: 'GitTensor contribution recorded',
-        description: 'Developer activity was mapped into the passport achievement graph.',
+        id: 'community-reputation',
+        title: 'Community reputation milestone',
+        description: 'Public ecosystem participation strengthened the wallet trust profile.',
         occurredAt: '2025-09-14T00:00:00.000Z',
+<<<<<<< HEAD
         source: 'gittensor',
         provenance: buildTimelineProvenance(
           'gittensor',
@@ -118,6 +118,9 @@ export function getDemoTimeline(): TimelineEvent[] {
           'gittensor-contribution-fixture',
           [{ label: 'Issue #22 context', url: 'https://github.com/RenzoMXD/tao-passport/pull/22' }],
         ),
+=======
+        source: 'community',
+>>>>>>> 7358433 (fix: external contribution for all users)
       },
     ],
   );

@@ -7,6 +7,7 @@ Achievements convert wallet behavior into readable reputation moments.
 - Validator: uptime, consistency, duration, subnet coverage
 - Miner: long-term mining activity and subnet participation
 - Governance: voting and proposal participation
+- Delegate: durable delegation and network participation
 - Community: verified ecosystem support and educational contributions
 - Subnet: early participation and multi-subnet history
 

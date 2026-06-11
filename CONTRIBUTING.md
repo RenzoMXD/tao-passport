@@ -2,7 +2,7 @@
 
 TAO Passport is a Bittensor ecosystem project for turning TAO wallet activity into a readable reputation profile. Contributions should improve one of three things: signal quality, product clarity, or operational reliability.
 
-This guide is intentionally specific. TAO Passport touches wallets, validator/miner activity, subnet participation, governance, Contributions, reputation scoring, and community signals, so changes need to be explainable and easy to review.
+This guide is intentionally specific. TAO Passport touches wallets, validator/miner activity, subnet participation, governance, reputation scoring, and community signals, so changes need to be explainable and easy to review.
 
 ---
 
@@ -13,7 +13,7 @@ This guide is intentionally specific. TAO Passport touches wallets, validator/mi
 | Wallet profiles | Better SS58/Substrate validation, profile empty states, wallet summary formatting. |
 | Bittensor data | Chain query adapters, subnet participation mapping, validator/miner activity snapshots. |
 | Reputation | Transparent scoring weights, signal provenance, normalization, abuse-resistance reviews. |
-| Repogitories | Contribution ingestion, merged PR/review signals, freshness scoring, repo attribution. |
+| Subnet data | Subnet participation mapping, governance activity, role coverage, freshness handling. |
 | Achievements | New badge definitions, deterministic ordering, unlock criteria documentation. |
 | Frontend | Passport cards, timeline filters, leaderboard UX, accessibility, loading/error states. |
 | Backend | API validation, caching, rate limiting, repository implementations, tests. |
@@ -121,7 +121,7 @@ Any new or modified scoring signal must document:
 - **Abuse risk**: how the signal can be gamed and how the design reduces that risk.
 - **User explanation**: how the UI or docs should explain the signal.
 
-Prefer durable behavior over one-time events. Validator reliability, long-term miner participation, merged GitHub work, and sustained governance/community activity should matter more than easy-to-spam signals.
+Prefer durable behavior over one-time events. Validator reliability, long-term miner participation, and sustained governance/community activity should matter more than easy-to-spam signals.
 
 ---
 
@@ -172,8 +172,6 @@ Useful docs:
 TAO Passport should be safe by design:
 
 - Never request private keys or seed phrases.
-- Treat GitHub tokens as sensitive.
-- Do not expose private contribution context in public profile views.
 - Rate-limit public lookup endpoints before production use.
 - Keep scoring inputs auditable and versioned.
 

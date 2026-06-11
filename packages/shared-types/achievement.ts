@@ -2,7 +2,6 @@ export type AchievementCategory =
   | 'validator'
   | 'miner'
   | 'governance'
-  | 'gittensor'
   | 'community'
   | 'subnet';
 

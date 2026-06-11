@@ -1,5 +1,5 @@
 INSERT INTO wallets (wallet_address, label, first_seen_at)
-VALUES ('5FAbc123TAOPassportDemoWalletAddress999999999999', 'Demo validator and GitTensor builder', '2023-02-01T00:00:00Z')
+VALUES ('5FAbc123TAOPassportDemoWalletAddress999999999999', 'Demo validator and subnet participant', '2023-02-01T00:00:00Z')
 ON CONFLICT (wallet_address) DO NOTHING;
 
 INSERT INTO passport_scores (wallet_address, level, trust_score, validator_score, miner_score, community_score, years_active)

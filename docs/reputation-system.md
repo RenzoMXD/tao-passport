@@ -9,7 +9,7 @@ TAO Passport uses weighted reputation signals to calculate wallet trust.
 | Validator reliability | Chain | Measures validator consistency and operational trust. |
 | Miner participation | Chain | Rewards durable subnet mining activity. |
 | Governance activity | Chain | Identifies users participating in protocol decisions. |
-| Project contribution | (bittensor)Subnet | Rewards code, reviews, and ecosystem project building. |
+| Subnet participation | Chain | Rewards sustained activity across Bittensor subnet roles and economies. |
 | Community signal | Community | Captures durable non-code ecosystem contribution. |
 
 ## Scoring Principles

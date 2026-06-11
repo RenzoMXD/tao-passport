@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "start": "node dist/src/server.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

@@ -1,7 +1,7 @@
 import type { Achievement } from './achievement.js';
 import type { ProvenanceMetadata, ReputationSignal } from './reputation.js';
 
-export type SubnetRole = 'validator' | 'miner' | 'delegate' | 'builder';
+export type SubnetRole = 'validator' | 'miner' | 'delegate';
 
 export type SubnetParticipation = {
   subnetId: number;
@@ -30,6 +30,7 @@ export type TimelineEvent = {
   title: string;
   description: string;
   occurredAt: string;
+<<<<<<< HEAD
   source: 'chain' | 'gittensor' | 'community';
   provenance: ProvenanceMetadata;
 };
@@ -56,6 +57,9 @@ export type GitTensorContributionSummary = {
   contributionFreshness: 'fresh' | 'active' | 'stale';
   repositories: GitTensorRepositoryContribution[];
   recentActivity: GitTensorActivity[];
+=======
+  source: 'chain' | 'community';
+>>>>>>> 7358433 (fix: external contribution for all users)
 };
 
 export type TaoPassport = {
@@ -67,7 +71,6 @@ export type TaoPassport = {
   minerScore: number;
   communityScore: number;
   yearsActive: number;
-  gitTensor: GitTensorContributionSummary;
   subnetParticipation: SubnetParticipation[];
   profileMetadata: ProfileMetadata;
   achievements: Achievement[];

@@ -76,6 +76,7 @@ export function buildReputationSignals(input: ReputationSignalInput): Reputation
   ];
 
   return [
+<<<<<<< HEAD
     {
       name: 'Validator reliability',
       score: input.validatorScore,
@@ -157,6 +158,13 @@ export function buildReputationSignals(input: ReputationSignalInput): Reputation
         evidenceLinks,
       ),
     },
+=======
+    { name: 'Validator reliability', score: input.validatorScore, weight: 0.32, source: 'chain' },
+    { name: 'Miner participation', score: input.minerScore, weight: 0.2, source: 'chain' },
+    { name: 'Governance activity', score: governanceScore, weight: 0.18, source: 'chain' },
+    { name: 'Subnet participation', score: subnetScore, weight: 0.18, source: 'derived' },
+    { name: 'Community signal', score: input.communityScore, weight: 0.12, source: 'community' },
+>>>>>>> 7358433 (fix: external contribution for all users)
   ];
 }
 
@@ -190,7 +198,7 @@ export async function getDemoLeaderboard(): Promise<LeaderboardEntry[]> {
 
       return {
         walletAddress,
-        label: `${formatSubnetRole(topRole ?? 'builder')} across ${subnetCount} subnet${subnetCount === 1 ? '' : 's'}`,
+        label: `${formatSubnetRole(topRole ?? 'delegate')} across ${subnetCount} subnet${subnetCount === 1 ? '' : 's'}`,
         trustScore: calculateTrustScore(signals),
       };
     }),

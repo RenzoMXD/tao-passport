@@ -11,14 +11,6 @@ export function getDemoAchievements(): Achievement[] {
       unlockedAt: '2025-02-01T00:00:00.000Z',
     },
     {
-      id: 'gittensor-builder',
-      name: 'GitTensor Builder',
-      description: 'Contributed code or reviews to GitTensor-registered repositories.',
-      category: 'gittensor',
-      icon: '🛠️',
-      unlockedAt: '2025-09-14T00:00:00.000Z',
-    },
-    {
       id: 'governance-voter',
       name: 'Governance Participant',
       description: 'Participated in protocol governance decisions.',
@@ -33,6 +25,14 @@ export function getDemoAchievements(): Achievement[] {
       category: 'subnet',
       icon: '🌐',
       unlockedAt: '2026-01-09T00:00:00.000Z',
+    },
+    {
+      id: 'community-signal',
+      name: 'Community Signal',
+      description: 'Earned durable ecosystem trust through long-term public participation.',
+      category: 'community',
+      icon: '🤝',
+      unlockedAt: '2025-10-04T00:00:00.000Z',
     },
   ];
 }

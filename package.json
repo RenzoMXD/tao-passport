@@ -26,8 +26,7 @@
     "bittensor",
     "tao",
     "reputation",
-    "passport",
-    "gittensor"
+    "passport"
   ],
   "license": "MIT"
 }

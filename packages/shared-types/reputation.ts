@@ -22,8 +22,12 @@ export type ReputationSignal = {
   name: string;
   score: number;
   weight: number;
+<<<<<<< HEAD
   source: ProvenanceSourceCategory;
   provenance: ProvenanceMetadata;
+=======
+  source: 'chain' | 'community' | 'derived';
+>>>>>>> 7358433 (fix: external contribution for all users)
 };
 
 export type LeaderboardEntry = {

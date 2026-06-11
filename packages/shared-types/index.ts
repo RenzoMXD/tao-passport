@@ -1,8 +1,5 @@
 export type { Achievement, AchievementCategory } from './achievement.js';
 export type {
-  GitTensorActivity,
-  GitTensorContributionSummary,
-  GitTensorRepositoryContribution,
   ProfileCacheMetadata,
   ProfileMetadata,
   SubnetParticipation,

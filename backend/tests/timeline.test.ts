@@ -34,10 +34,11 @@ test('normalizes timestamps and sorts merged timeline events deterministically',
       },
     },
     {
-      id: 'gittensor-1',
-      title: 'GitTensor milestone',
-      description: 'GitTensor event',
+      id: 'community-2',
+      title: 'Community milestone two',
+      description: 'Community event',
       occurredAt: '2026-01-05',
+<<<<<<< HEAD
       source: 'gittensor',
       provenance: {
         sourceCategory: 'gittensor',
@@ -46,6 +47,9 @@ test('normalizes timestamps and sorts merged timeline events deterministically',
         scoringModelVersion: 'tao-passport-reputation/v1',
         confidence: 'high',
       },
+=======
+      source: 'community',
+>>>>>>> 7358433 (fix: external contribution for all users)
     },
     {
       id: 'chain-2',
@@ -70,8 +74,8 @@ test('normalizes timestamps and sorts merged timeline events deterministically',
     [
       ['chain-1', '2025-01-03T00:00:00.000Z'],
       ['chain-2', '2026-01-05T00:00:00.000Z'],
-      ['gittensor-1', '2026-01-05T00:00:00.000Z'],
       ['community-1', '2026-01-05T00:00:00.000Z'],
+      ['community-2', '2026-01-05T00:00:00.000Z'],
     ],
   );
 });
@@ -84,6 +88,7 @@ test('buildTimeline flattens service outputs before sorting', () => {
         title: 'Later',
         description: 'Later event',
         occurredAt: '2025-10-01T00:00:00.000Z',
+<<<<<<< HEAD
         source: 'gittensor',
         provenance: {
           sourceCategory: 'gittensor',
@@ -92,6 +97,9 @@ test('buildTimeline flattens service outputs before sorting', () => {
           scoringModelVersion: 'tao-passport-reputation/v1',
           confidence: 'high',
         },
+=======
+        source: 'community',
+>>>>>>> 7358433 (fix: external contribution for all users)
       },
     ],
     [
@@ -121,7 +129,7 @@ test('buildTimeline flattens service outputs before sorting', () => {
 test('getDemoTimeline returns ordered server-side timeline data', () => {
   assert.deepEqual(
     getDemoTimeline().map((event) => event.id),
-    ['first-seen', 'validator-active', 'gittensor-contribution'],
+    ['first-seen', 'validator-active', 'community-reputation'],
   );
 });
 
