@@ -11,3 +11,5 @@ export function weightedAverage(values: Array<{ score: number; weight: number }>
 
   return clampScore(values.reduce((sum, value) => sum + value.score * value.weight, 0) / totalWeight);
 }
+
+export { canonicalizeWalletAddress, isCanonicalSubstrateAddress, normalizeWalletAddressInput } from './wallet.js';

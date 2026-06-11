@@ -3,6 +3,10 @@ export type {
   GitTensorActivity,
   GitTensorContributionSummary,
   GitTensorRepositoryContribution,
+  ProfileCacheMetadata,
+  ProfileMetadata,
+  SubnetParticipation,
+  SubnetRole,
   TaoPassport,
   TimelineEvent,
 } from './passport.js';

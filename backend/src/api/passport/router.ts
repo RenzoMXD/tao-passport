@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { sampleWalletAddress, findPassport } from '../../repositories/passportRepository.js';
-import { isSubstrateAddress } from '../../blockchain/wallet/validators.js';
+import { normalizeSubstrateAddress } from '../../blockchain/wallet/validators.js';
 import { badRequest } from '../../utils/http.js';
 
 export const passportRouter = Router();
@@ -15,13 +15,13 @@ passportRouter.get('/sample', async (_request, response, next) => {
 
 passportRouter.get('/:walletAddress', async (request, response, next) => {
   try {
-    const { walletAddress } = request.params;
+    const normalizedWalletAddress = normalizeSubstrateAddress(request.params.walletAddress);
 
-    if (!isSubstrateAddress(walletAddress)) {
+    if (normalizedWalletAddress === null) {
       return badRequest(response, 'Invalid Substrate wallet address format.');
     }
 
-    response.json(await findPassport(walletAddress));
+    response.json(await findPassport(normalizedWalletAddress));
   } catch (error) {
     next(error);
   }
