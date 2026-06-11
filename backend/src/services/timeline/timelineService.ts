@@ -109,18 +109,14 @@ export function getDemoTimeline(): TimelineEvent[] {
         title: 'Community reputation milestone',
         description: 'Public ecosystem participation strengthened the wallet trust profile.',
         occurredAt: '2025-09-14T00:00:00.000Z',
-<<<<<<< HEAD
-        source: 'gittensor',
-        provenance: buildTimelineProvenance(
-          'gittensor',
-          'wallet:sample:gittensor-contribution',
-          '2026-06-06T18:30:00.000Z',
-          'gittensor-contribution-fixture',
-          [{ label: 'Issue #22 context', url: 'https://github.com/RenzoMXD/tao-passport/pull/22' }],
-        ),
-=======
         source: 'community',
->>>>>>> 7358433 (fix: external contribution for all users)
+        provenance: buildTimelineProvenance(
+          'community',
+          'wallet:sample:community-reputation',
+          '2026-06-06T18:30:00.000Z',
+          'community-reputation-fixture',
+          [{ label: 'Methodology', url: 'https://github.com/RenzoMXD/tao-passport/blob/main/docs/reputation-system.md' }],
+        ),
       },
     ],
   );

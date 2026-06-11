@@ -30,36 +30,8 @@ export type TimelineEvent = {
   title: string;
   description: string;
   occurredAt: string;
-<<<<<<< HEAD
-  source: 'chain' | 'gittensor' | 'community';
-  provenance: ProvenanceMetadata;
-};
-
-export type GitTensorRepositoryContribution = {
-  name: string;
-  url: string;
-  contributionCount: number;
-  mergedPullRequests: number;
-};
-
-export type GitTensorActivity = {
-  id: string;
-  title: string;
-  repository: string;
-  occurredAt: string;
-  type: 'commit' | 'pull_request' | 'issue' | 'review';
-};
-
-export type GitTensorContributionSummary = {
-  totalContributions: number;
-  mergedPullRequests: number;
-  lastContributionAt: string;
-  contributionFreshness: 'fresh' | 'active' | 'stale';
-  repositories: GitTensorRepositoryContribution[];
-  recentActivity: GitTensorActivity[];
-=======
   source: 'chain' | 'community';
->>>>>>> 7358433 (fix: external contribution for all users)
+  provenance: ProvenanceMetadata;
 };
 
 export type TaoPassport = {

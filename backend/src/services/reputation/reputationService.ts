@@ -76,11 +76,10 @@ export function buildReputationSignals(input: ReputationSignalInput): Reputation
   ];
 
   return [
-<<<<<<< HEAD
     {
       name: 'Validator reliability',
       score: input.validatorScore,
-      weight: 0.28,
+      weight: 0.32,
       source: 'chain',
       provenance: buildSignalProvenance(
         'chain',
@@ -93,7 +92,7 @@ export function buildReputationSignals(input: ReputationSignalInput): Reputation
     {
       name: 'Miner participation',
       score: input.minerScore,
-      weight: 0.16,
+      weight: 0.2,
       source: 'chain',
       provenance: buildSignalProvenance(
         'chain',
@@ -106,7 +105,7 @@ export function buildReputationSignals(input: ReputationSignalInput): Reputation
     {
       name: 'Governance activity',
       score: governanceScore,
-      weight: 0.14,
+      weight: 0.18,
       source: 'chain',
       provenance: buildSignalProvenance(
         'chain',
@@ -119,7 +118,7 @@ export function buildReputationSignals(input: ReputationSignalInput): Reputation
     {
       name: 'Subnet participation',
       score: subnetScore,
-      weight: 0.12,
+      weight: 0.18,
       source: 'derived',
       provenance: buildSignalProvenance(
         'derived',
@@ -130,25 +129,9 @@ export function buildReputationSignals(input: ReputationSignalInput): Reputation
       ),
     },
     {
-      name: 'GitTensor contribution',
-      score: 94,
-      weight: 0.25,
-      source: 'gittensor',
-      provenance: buildSignalProvenance(
-        'gittensor',
-        `wallet:${input.walletAddress}:gittensor`,
-        '2026-06-06T18:30:00.000Z',
-        'gittensor-contribution-fixture',
-        [
-          ...evidenceLinks,
-          { label: 'Issue #22 context', url: 'https://github.com/RenzoMXD/tao-passport/pull/22' },
-        ],
-      ),
-    },
-    {
       name: 'Community signal',
       score: input.communityScore,
-      weight: 0.05,
+      weight: 0.12,
       source: 'community',
       provenance: buildSignalProvenance(
         'community',
@@ -158,13 +141,6 @@ export function buildReputationSignals(input: ReputationSignalInput): Reputation
         evidenceLinks,
       ),
     },
-=======
-    { name: 'Validator reliability', score: input.validatorScore, weight: 0.32, source: 'chain' },
-    { name: 'Miner participation', score: input.minerScore, weight: 0.2, source: 'chain' },
-    { name: 'Governance activity', score: governanceScore, weight: 0.18, source: 'chain' },
-    { name: 'Subnet participation', score: subnetScore, weight: 0.18, source: 'derived' },
-    { name: 'Community signal', score: input.communityScore, weight: 0.12, source: 'community' },
->>>>>>> 7358433 (fix: external contribution for all users)
   ];
 }
 

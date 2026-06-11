@@ -1,4 +1,4 @@
-export type ProvenanceSourceCategory = 'chain' | 'gittensor' | 'community' | 'derived';
+export type ProvenanceSourceCategory = 'chain' | 'community' | 'derived';
 
 export type ProvenanceConfidence = 'high' | 'medium' | 'low';
 
@@ -22,12 +22,8 @@ export type ReputationSignal = {
   name: string;
   score: number;
   weight: number;
-<<<<<<< HEAD
   source: ProvenanceSourceCategory;
   provenance: ProvenanceMetadata;
-=======
-  source: 'chain' | 'community' | 'derived';
->>>>>>> 7358433 (fix: external contribution for all users)
 };
 
 export type LeaderboardEntry = {
