@@ -34,6 +34,30 @@ export type TimelineEvent = {
   provenance: ProvenanceMetadata;
 };
 
+export type GitTensorRepositoryContribution = {
+  name: string;
+  url: string;
+  contributionCount: number;
+  mergedPullRequests: number;
+};
+
+export type GitTensorActivity = {
+  id: string;
+  title: string;
+  repository: string;
+  occurredAt: string;
+  type: 'commit' | 'pull_request' | 'issue' | 'review';
+};
+
+export type GitTensorContributionSummary = {
+  totalContributions: number;
+  mergedPullRequests: number;
+  lastContributionAt: string;
+  contributionFreshness: 'fresh' | 'active' | 'stale';
+  repositories: GitTensorRepositoryContribution[];
+  recentActivity: GitTensorActivity[];
+};
+
 export type TaoPassport = {
   walletAddress: string;
   summary: string;
@@ -43,6 +67,7 @@ export type TaoPassport = {
   minerScore: number;
   communityScore: number;
   yearsActive: number;
+  gitTensor: GitTensorContributionSummary;
   subnetParticipation: SubnetParticipation[];
   profileMetadata: ProfileMetadata;
   achievements: Achievement[];
