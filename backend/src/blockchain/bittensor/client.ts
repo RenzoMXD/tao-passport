@@ -1,7 +1,11 @@
+<<<<<<< HEAD
+import { BittensorDataUnavailableError } from './errors.js';
+=======
 import type { ProfileCacheMetadata, SubnetParticipation, SubnetRole } from '@tao-passport/shared-types';
 import { createTtlCache } from '../../utils/ttlCache.js';
 
 type RawSubnetParticipation = Omit<SubnetParticipation, 'recentActivity'>;
+>>>>>>> 3d30bfe7b19a81cc60c75aebff2b33d23861efe5
 
 export type ChainWalletSnapshot = {
   walletAddress: string;
@@ -13,6 +17,21 @@ export type ChainWalletSnapshot = {
   subnetParticipation: RawSubnetParticipation[];
 };
 
+<<<<<<< HEAD
+export function assertBittensorDataAvailable() {
+  if (process.env.TAO_PASSPORT_FORCE_BITTENSOR_UNAVAILABLE === 'true') {
+    throw new BittensorDataUnavailableError(
+      'Bittensor data is temporarily unavailable. Please retry after the chain adapter reconnects.',
+    );
+  }
+}
+
+export async function getWalletSnapshot(walletAddress: string): Promise<ChainWalletSnapshot> {
+  assertBittensorDataAvailable();
+
+  return {
+    walletAddress,
+=======
 type SubnetMetadata = {
   subnetId: number;
   recentActivity: string;
@@ -31,6 +50,7 @@ const sampleWalletAddress = '5FAbc123TAOPassportDemoWalletAddress999999999999';
 
 const walletFixtures: Record<string, Omit<ChainWalletSnapshot, 'walletAddress'>> = {
   [sampleWalletAddress]: {
+>>>>>>> 3d30bfe7b19a81cc60c75aebff2b33d23861efe5
     validatorScore: 92,
     minerScore: 76,
     communityScore: 87,

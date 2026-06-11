@@ -1,3 +1,4 @@
+export type { ApiErrorCode, ApiErrorPayload } from './api.js';
 export type { Achievement, AchievementCategory } from './achievement.js';
 export type {
   GitTensorActivity,
