@@ -209,6 +209,17 @@ TAO Passport is designed around explainable reputation. A score should be tracea
 
 See `docs/reputation-system.md` for the starter scoring principles.
 
+### Governance and Community Signals
+
+Issue `#3` asks for explicit documentation of governance and community signal sources. That is now documented in `docs/reputation-system.md`, including:
+
+- planned governance vote and proposal-participation inputs
+- planned community contribution inputs
+- source and provenance expectations
+- stale-data and cache handling expectations
+- current scoring weights and limitations
+- an example of how those signals appear in a passport profile
+
 ---
 
 ## Architecture

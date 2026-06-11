@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { calculateTrustScore } from '../src/services/reputation/reputationService.js';
+import { calculateTrustScore, getReputationSignalCatalog } from '../src/services/reputation/reputationService.js';
 
 test('calculates weighted trust score', () => {
   const score = calculateTrustScore([
@@ -9,4 +9,16 @@ test('calculates weighted trust score', () => {
   ]);
 
   assert.equal(score, 95);
+});
+
+test('documents governance and community signal sources', () => {
+  const catalog = getReputationSignalCatalog();
+  const governance = catalog.signals.find((signal) => signal.signal === 'Governance activity');
+  const community = catalog.signals.find((signal) => signal.signal === 'Community signal');
+
+  assert.equal(Array.isArray(catalog.staleDataPolicy), true);
+  assert.equal(catalog.staleDataPolicy.length > 0, true);
+  assert.deepEqual(governance?.plannedInputs.includes('governance vote count'), true);
+  assert.deepEqual(community?.plannedInputs.includes('verified ecosystem help'), true);
+  assert.equal(governance?.limitations.includes('Current implementation only models vote count.'), true);
 });

@@ -18,6 +18,8 @@ The frontend is a React + TypeScript + TailwindCSS app. It intentionally uses a 
 
 The backend is an Express API with feature-oriented route modules. Services isolate business logic from HTTP handlers. Blockchain adapters live under `backend/src/blockchain` so live Bittensor APIs can replace mock data without rewriting API routes.
 
+The reputation API currently exposes both weighted signal values and signal metadata. That metadata is the contract that documents expected governance and community inputs, freshness rules, limitations, and score interpretation for frontend or third-party consumers.
+
 ## Database
 
 PostgreSQL stores wallet identity records, aggregate passport scores, achievements, and timeline events. The current schema is intentionally minimal and should be expanded as live data ingestion matures.
