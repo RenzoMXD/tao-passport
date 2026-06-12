@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { calculateTrustScore } from '../src/services/reputation/reputationService.js';
+import { calculateTrustScore, getPaginatedLeaderboard } from '../src/services/reputation/reputationService.js';
 
 test('calculates weighted trust score', () => {
   const score = calculateTrustScore([
@@ -52,4 +52,31 @@ test('buildReputationSignals adds provenance metadata for auditability', async (
 
   assert.equal(signals.every((signal) => signal.provenance.scoringModelVersion === 'tao-passport-reputation/v1'), true);
   assert.equal(signals.every((signal) => signal.provenance.sourceId.length > 0), true);
+});
+
+test('getPaginatedLeaderboard paginates deterministically by page', async () => {
+  const pageOne = await getPaginatedLeaderboard({ limit: 2, page: 1, sort: 'trustScore:desc' });
+  const pageTwo = await getPaginatedLeaderboard({ limit: 2, page: 2, sort: 'trustScore:desc' });
+
+  assert.equal(pageOne.items.length, 2);
+  assert.equal(pageOne.hasNextPage, true);
+  assert.equal(pageTwo.items.length, 1);
+  assert.equal(pageTwo.hasPreviousPage, true);
+  assert.deepEqual(
+    [...pageOne.items, ...pageTwo.items].map((entry) => entry.walletAddress),
+    [
+      '5FAbc123TAOPassportDemoWalletAddress999999999999',
+      '5Fxyz789LongTermSubnetMinerWalletAddress999999999',
+      '5Gdao456GovernanceParticipantWalletAddress99999999',
+    ],
+  );
+});
+
+test('getPaginatedLeaderboard filters by category and supports empty GitTensor state', async () => {
+  const minerResults = await getPaginatedLeaderboard({ category: 'miner', limit: 10, page: 1 });
+  const gitTensorResults = await getPaginatedLeaderboard({ category: 'gittensor', limit: 10, page: 1 });
+
+  assert.equal(minerResults.items.every((entry) => entry.matchedCategories.includes('miner')), true);
+  assert.equal(gitTensorResults.total, 0);
+  assert.equal(gitTensorResults.items.length, 0);
 });

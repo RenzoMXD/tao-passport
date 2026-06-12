@@ -1,4 +1,11 @@
-import type { LeaderboardEntry, ProvenanceMetadata, ReputationSignal } from '@tao-passport/shared-types';
+import type {
+  LeaderboardEntry,
+  LeaderboardResponse,
+  LeaderboardSignalCategory,
+  LeaderboardSort,
+  ProvenanceMetadata,
+  ReputationSignal,
+} from '@tao-passport/shared-types';
 import { weightedAverage } from '@tao-passport/shared-utils';
 import { formatSubnetRole, getWalletSnapshot } from '../../blockchain/bittensor/client.js';
 
@@ -154,7 +161,59 @@ const leaderboardWallets = [
   '5Gdao456GovernanceParticipantWalletAddress99999999',
 ];
 
-export async function getDemoLeaderboard(): Promise<LeaderboardEntry[]> {
+function getMatchedCategories(input: {
+  communityScore: number;
+  governanceVotes: number;
+  minerScore: number;
+  subnetParticipation: ReputationSignalInput['subnetParticipation'];
+  validatorScore: number;
+}): LeaderboardEntry['matchedCategories'] {
+  const roles = new Set(input.subnetParticipation.map((entry) => entry.role));
+  const highestContributionWeight = input.subnetParticipation.reduce(
+    (highestWeight, entry) => Math.max(highestWeight, entry.contributionWeight),
+    0,
+  );
+  const matchedCategories: LeaderboardEntry['matchedCategories'] = [];
+
+  if (input.validatorScore >= 80 || roles.has('validator')) {
+    matchedCategories.push('validator');
+  }
+
+  if (input.minerScore >= 80 || roles.has('miner')) {
+    matchedCategories.push('miner');
+  }
+
+  if (input.governanceVotes >= 12) {
+    matchedCategories.push('governance');
+  }
+
+  if (input.subnetParticipation.length >= 2 && highestContributionWeight >= 0.7) {
+    matchedCategories.push('subnet');
+  }
+
+  if (input.communityScore >= 80) {
+    matchedCategories.push('community');
+  }
+
+  return matchedCategories;
+}
+
+function compareLeaderboardEntries(
+  left: Pick<LeaderboardEntry, 'trustScore' | 'walletAddress'>,
+  right: Pick<LeaderboardEntry, 'trustScore' | 'walletAddress'>,
+  sort: LeaderboardSort,
+): number {
+  const trustScoreDifference =
+    sort === 'trustScore:asc' ? left.trustScore - right.trustScore : right.trustScore - left.trustScore;
+
+  if (trustScoreDifference !== 0) {
+    return trustScoreDifference;
+  }
+
+  return left.walletAddress.localeCompare(right.walletAddress);
+}
+
+export async function getDemoLeaderboardEntries(): Promise<LeaderboardEntry[]> {
   const entries = await Promise.all(
     leaderboardWallets.map(async (walletAddress) => {
       const snapshot = await getWalletSnapshot(walletAddress);
@@ -176,11 +235,60 @@ export async function getDemoLeaderboard(): Promise<LeaderboardEntry[]> {
         walletAddress,
         label: `${formatSubnetRole(topRole ?? 'delegate')} across ${subnetCount} subnet${subnetCount === 1 ? '' : 's'}`,
         trustScore: calculateTrustScore(signals),
+        matchedCategories: getMatchedCategories({
+          validatorScore: snapshot.value.validatorScore,
+          minerScore: snapshot.value.minerScore,
+          governanceVotes: snapshot.value.governanceVotes,
+          subnetParticipation: snapshot.value.subnetParticipation,
+          communityScore: snapshot.value.communityScore,
+        }),
       };
     }),
   );
 
   return entries
-    .sort((left, right) => right.trustScore - left.trustScore)
+    .sort((left, right) => compareLeaderboardEntries(left, right, 'trustScore:desc'))
     .map((entry, index) => ({ ...entry, rank: index + 1 }));
+}
+
+export async function getDemoLeaderboard(): Promise<LeaderboardEntry[]> {
+  return getDemoLeaderboardEntries();
+}
+
+export async function getPaginatedLeaderboard(input?: {
+  category?: LeaderboardSignalCategory;
+  limit?: number;
+  page?: number;
+  cursor?: string | null;
+  sort?: LeaderboardSort;
+}): Promise<LeaderboardResponse> {
+  const category = input?.category ?? 'all';
+  const limit = input?.limit ?? 10;
+  const sort = input?.sort ?? 'trustScore:desc';
+  const entries = await getDemoLeaderboardEntries();
+  const filteredEntries = category === 'all' ? entries : entries.filter((entry) => entry.matchedCategories.includes(category));
+  const sortedEntries = filteredEntries
+    .slice()
+    .sort((left, right) => compareLeaderboardEntries(left, right, sort))
+    .map((entry, index) => ({ ...entry, rank: index + 1 }));
+  const cursorOffset = input?.cursor ? Number(Buffer.from(input.cursor, 'base64url').toString('utf8')) : Number.NaN;
+  const offset = Number.isInteger(cursorOffset) && cursorOffset >= 0 ? cursorOffset : ((input?.page ?? 1) - 1) * limit;
+  const safeOffset = Math.max(0, Math.min(offset, sortedEntries.length));
+  const pagedItems = sortedEntries.slice(safeOffset, safeOffset + limit);
+  const page = sortedEntries.length === 0 ? 1 : Math.floor(safeOffset / limit) + 1;
+  const nextOffset = safeOffset + limit;
+  const previousOffset = Math.max(0, safeOffset - limit);
+
+  return {
+    items: pagedItems,
+    total: sortedEntries.length,
+    page,
+    limit,
+    hasNextPage: nextOffset < sortedEntries.length,
+    hasPreviousPage: safeOffset > 0,
+    nextCursor: nextOffset < sortedEntries.length ? Buffer.from(String(nextOffset)).toString('base64url') : null,
+    previousCursor: safeOffset > 0 ? Buffer.from(String(previousOffset)).toString('base64url') : null,
+    sort,
+    category,
+  };
 }
