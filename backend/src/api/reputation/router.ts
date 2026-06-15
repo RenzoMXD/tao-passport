@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { buildReputationSignals, getDemoLeaderboard } from '../../services/reputation/reputationService.js';
+import { z } from 'zod';
+import { buildReputationSignals, getPaginatedLeaderboard } from '../../services/reputation/reputationService.js';
 import { getWalletSnapshot } from '../../blockchain/bittensor/client.js';
 
 export const reputationRouter = Router();
@@ -22,10 +23,27 @@ reputationRouter.get('/signals', (_request, response) => {
   );
 });
 
-reputationRouter.get('/leaderboard', async (_request, response, next) => {
+const leaderboardQuerySchema = z.object({
+  category: z.enum(['all', 'validator', 'miner', 'governance', 'subnet', 'community', 'gittensor']).optional(),
+  cursor: z.string().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(50).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  sort: z.enum(['trustScore:desc', 'trustScore:asc']).optional(),
+});
+
+reputationRouter.get('/leaderboard', async (request, response, next) => {
   try {
     void getWalletSnapshot;
-    response.json(await getDemoLeaderboard());
+    const query = leaderboardQuerySchema.parse(request.query);
+    response.json(
+      await getPaginatedLeaderboard({
+        category: query.category,
+        cursor: query.cursor ?? null,
+        limit: query.limit,
+        page: query.page,
+        sort: query.sort,
+      }),
+    );
   } catch (error) {
     next(error);
   }

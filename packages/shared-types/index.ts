@@ -9,6 +9,9 @@ export type {
 } from './passport.js';
 export type {
   LeaderboardEntry,
+  LeaderboardResponse,
+  LeaderboardSignalCategory,
+  LeaderboardSort,
   ProvenanceConfidence,
   ProvenanceEvidenceLink,
   ProvenanceMetadata,

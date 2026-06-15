@@ -38,18 +38,14 @@ test('normalizes timestamps and sorts merged timeline events deterministically',
       title: 'Community milestone two',
       description: 'Community event',
       occurredAt: '2026-01-05',
-<<<<<<< HEAD
-      source: 'gittensor',
+      source: 'community',
       provenance: {
-        sourceCategory: 'gittensor',
-        sourceId: 'gittensor:event:1',
+        sourceCategory: 'community',
+        sourceId: 'community:event:2',
         observedAt: '2026-01-05',
         scoringModelVersion: 'tao-passport-reputation/v1',
-        confidence: 'high',
+        confidence: 'medium',
       },
-=======
-      source: 'community',
->>>>>>> 7358433 (fix: external contribution for all users)
     },
     {
       id: 'chain-2',
@@ -88,18 +84,14 @@ test('buildTimeline flattens service outputs before sorting', () => {
         title: 'Later',
         description: 'Later event',
         occurredAt: '2025-10-01T00:00:00.000Z',
-<<<<<<< HEAD
-        source: 'gittensor',
+        source: 'community',
         provenance: {
-          sourceCategory: 'gittensor',
-          sourceId: 'gittensor:event:later',
+          sourceCategory: 'community',
+          sourceId: 'community:event:later',
           observedAt: '2025-10-01T00:00:00.000Z',
           scoringModelVersion: 'tao-passport-reputation/v1',
-          confidence: 'high',
+          confidence: 'medium',
         },
-=======
-        source: 'community',
->>>>>>> 7358433 (fix: external contribution for all users)
       },
     ],
     [
