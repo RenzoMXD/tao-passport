@@ -20,6 +20,8 @@
     "helmet": "latest",
     "morgan": "latest",
     "pg": "latest",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.9.0",
     "zod": "latest"
   },
   "devDependencies": {
@@ -29,6 +31,7 @@
     "@types/morgan": "latest",
     "@types/node": "latest",
     "@types/pg": "latest",
+    "@types/swagger-ui-express": "^4.1.8",
     "eslint": "latest",
     "tsx": "latest",
     "typescript": "latest",

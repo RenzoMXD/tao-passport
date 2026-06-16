@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { buildReputationSignals, getPaginatedLeaderboard } from '../../services/reputation/reputationService.js';
 import { getWalletSnapshot } from '../../blockchain/bittensor/client.js';
+import { badRequest } from '../../utils/http.js';
 
 export const reputationRouter = Router();
 
@@ -34,7 +35,16 @@ const leaderboardQuerySchema = z.object({
 reputationRouter.get('/leaderboard', async (request, response, next) => {
   try {
     void getWalletSnapshot;
-    const query = leaderboardQuerySchema.parse(request.query);
+    const parsedQuery = leaderboardQuerySchema.safeParse(request.query);
+
+    if (!parsedQuery.success) {
+      const detail = parsedQuery.error.issues
+        .map((issue) => `${issue.path.join('.') || 'query'}: ${issue.message}`)
+        .join('; ');
+      return badRequest(response, `Invalid leaderboard query parameters: ${detail}`);
+    }
+
+    const query = parsedQuery.data;
     response.json(
       await getPaginatedLeaderboard({
         category: query.category,

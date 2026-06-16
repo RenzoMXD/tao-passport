@@ -1,0 +1,804 @@
+openapi: 3.0.3
+info:
+  title: TAO Passport API
+  version: 0.1.0
+  description: |
+    REST API for **TAO Passport** — a portable identity and reputation layer for
+    [Bittensor](https://bittensor.com/) wallets. The API turns a raw TAO wallet
+    address into a readable public profile: validator and miner history, subnet
+    participation, governance activity, achievements, explainable reputation
+    signals, and a timeline of meaningful ecosystem activity.
+
+    ## Status
+
+    The current implementation is a product scaffold that serves realistic **demo
+    data** from in-memory fixtures. It is not yet connected to production Bittensor
+    indexers. Unknown wallet addresses that are otherwise valid resolve to the demo
+    profile so that integrations can be exercised end-to-end.
+
+    ## Data model
+
+    Response schemas are generated from the shared TypeScript contracts in
+    [`packages/shared-types`](https://github.com/RenzoMXD/tao-passport/tree/main/packages/shared-types)
+    so that the documentation tracks the code:
+
+    - `passport.ts` → `TaoPassport`, `SubnetParticipation`, `TimelineEvent`, `ProfileMetadata`
+    - `reputation.ts` → `ReputationSignal`, `ProvenanceMetadata`, `LeaderboardEntry`, `LeaderboardResponse`
+    - `achievement.ts` → `Achievement`
+
+    ## Authentication
+
+    All endpoints are currently **public, read-only, and unauthenticated**. TAO
+    Passport never requires wallet custody or private keys. Authentication and
+    per-key rate limiting are expected to be introduced ahead of production
+    Bittensor indexer integration; this specification will be versioned when they
+    land.
+
+    ## Reputation model
+
+    Each `ReputationSignal` carries a `weight` and `ProvenanceMetadata` so a wallet's
+    `trustScore` is explainable rather than a black box. The overall trust score is
+    the weighted average of all signal scores. See
+    [`docs/reputation-system.md`](https://github.com/RenzoMXD/tao-passport/blob/main/docs/reputation-system.md)
+    for the scoring methodology.
+
+    ## Rate limiting
+
+    No rate limiting is enforced in the current scaffold. Production deployments are
+    expected to apply request validation, rate limits, and cache controls on public
+    endpoints. The `cache` block returned inside `ProfileMetadata` exposes the
+    freshness (`cachedAt`, `expiresAt`, `ttlMs`) of the underlying chain snapshot.
+  license:
+    name: MIT
+    url: https://github.com/RenzoMXD/tao-passport/blob/main/LICENSE
+  contact:
+    name: TAO Passport
+    url: https://github.com/RenzoMXD/tao-passport
+
+servers:
+  - url: http://localhost:4000
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Service health and liveness.
+  - name: Passport
+    description: Wallet passport profiles.
+  - name: Achievements
+    description: Achievement definitions.
+  - name: Reputation
+    description: Reputation signals and the discovery leaderboard.
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: API health check
+      description: Returns a static liveness payload. Use for uptime and readiness probes.
+      operationId: getHealth
+      responses:
+        '200':
+          description: The service is up.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                service: tao-passport-api
+
+  /api/passport/sample:
+    get:
+      tags: [Passport]
+      summary: Get the demo passport
+      description: |
+        Returns the demo passport profile for the sample wallet
+        `5FAbc123TAOPassportDemoWalletAddress999999999999`. Useful for exploring the
+        full `TaoPassport` shape without supplying a wallet address.
+      operationId: getSamplePassport
+      responses:
+        '200':
+          description: The demo passport profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaoPassport'
+              examples:
+                sample:
+                  $ref: '#/components/examples/SamplePassport'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/passport/{walletAddress}:
+    get:
+      tags: [Passport]
+      summary: Look up a wallet passport
+      description: |
+        Looks up a passport profile by Substrate-style (SS58) wallet address. The
+        address is canonicalized and validated before lookup. In the current
+        scaffold any valid address that is not a seeded fixture resolves to the demo
+        profile data.
+      operationId: getPassportByWalletAddress
+      parameters:
+        - name: walletAddress
+          in: path
+          required: true
+          description: A Substrate-style (SS58) wallet address.
+          schema:
+            type: string
+          example: 5FAbc123TAOPassportDemoWalletAddress999999999999
+      responses:
+        '200':
+          description: The passport profile for the requested wallet.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaoPassport'
+              examples:
+                sample:
+                  $ref: '#/components/examples/SamplePassport'
+        '400':
+          description: The wallet address is not a valid Substrate-style address.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Invalid Substrate wallet address format.
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/achievements:
+    get:
+      tags: [Achievements]
+      summary: List achievement definitions
+      description: Returns the catalog of available achievement definitions.
+      operationId: listAchievements
+      responses:
+        '200':
+          description: The list of achievement definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Achievement'
+              example:
+                - id: validator-2-years
+                  name: Validator 2 Years
+                  description: Maintained validator participation across multiple market cycles.
+                  category: validator
+                  icon: 🏆
+                  unlockedAt: '2025-02-01T00:00:00.000Z'
+                - id: governance-voter
+                  name: Governance Participant
+                  description: Participated in protocol governance decisions.
+                  category: governance
+                  icon: 🗳️
+                  unlockedAt: '2025-11-03T00:00:00.000Z'
+                - id: subnet-explorer
+                  name: Subnet Explorer
+                  description: Participated in several Bittensor subnet economies.
+                  category: subnet
+                  icon: 🌐
+                  unlockedAt: '2026-01-09T00:00:00.000Z'
+                - id: community-signal
+                  name: Community Signal
+                  description: Earned durable ecosystem trust through long-term public participation.
+                  category: community
+                  icon: 🤝
+                  unlockedAt: '2025-10-04T00:00:00.000Z'
+
+  /api/reputation/signals:
+    get:
+      tags: [Reputation]
+      summary: Get reputation signal metadata
+      description: |
+        Returns the weighted reputation signals for the demo wallet, each with full
+        `ProvenanceMetadata`. The weighted average of the signal `score` values
+        produces a wallet's `trustScore`.
+      operationId: getReputationSignals
+      responses:
+        '200':
+          description: The list of reputation signals.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReputationSignal'
+              example:
+                - name: Validator reliability
+                  score: 92
+                  weight: 0.32
+                  source: chain
+                  provenance:
+                    sourceCategory: chain
+                    sourceId: 'wallet:5FAbc123TAOPassportDemoWalletAddress999999999999:validator'
+                    reference: validator-reliability-fixture
+                    observedAt: '2026-06-08T14:15:00.000Z'
+                    scoringModelVersion: tao-passport-reputation/v1
+                    confidence: high
+                    evidenceLinks:
+                      - label: Methodology
+                        url: https://github.com/RenzoMXD/tao-passport/blob/main/docs/reputation-system.md
+                - name: Community signal
+                  score: 87
+                  weight: 0.12
+                  source: community
+                  provenance:
+                    sourceCategory: community
+                    sourceId: 'wallet:5FAbc123TAOPassportDemoWalletAddress999999999999:community'
+                    reference: community-signal-fixture
+                    observedAt: '2026-06-05T12:00:00.000Z'
+                    scoringModelVersion: tao-passport-reputation/v1
+                    confidence: medium
+
+  /api/reputation/leaderboard:
+    get:
+      tags: [Reputation]
+      summary: Get the reputation leaderboard
+      description: |
+        Returns a ranked, paginated list of high-signal reputation profiles.
+
+        Pagination supports two interchangeable strategies:
+
+        - **Cursor-based** — pass the opaque `nextCursor` / `previousCursor` returned
+          by a previous response via the `cursor` parameter (preferred for stable paging).
+        - **Page-based** — pass a 1-based `page` number with an optional `limit`.
+
+        When both `cursor` and `page` are supplied, `cursor` takes precedence.
+      operationId: getLeaderboard
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: Filter entries to a single matched signal category.
+          schema:
+            type: string
+            enum: [all, validator, miner, governance, subnet, community, gittensor]
+            default: all
+        - name: cursor
+          in: query
+          required: false
+          description: Opaque pagination cursor from a previous response's `nextCursor`/`previousCursor`.
+          schema:
+            type: string
+            minLength: 1
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of entries to return per page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+        - name: page
+          in: query
+          required: false
+          description: 1-based page number (ignored when `cursor` is provided).
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: sort
+          in: query
+          required: false
+          description: Sort order by trust score.
+          schema:
+            type: string
+            enum: [trustScore:desc, trustScore:asc]
+            default: trustScore:desc
+      responses:
+        '200':
+          description: A page of ranked leaderboard entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardResponse'
+              example:
+                items:
+                  - rank: 1
+                    walletAddress: 5FAbc123TAOPassportDemoWalletAddress999999999999
+                    label: Validator across 3 subnets
+                    trustScore: 85
+                    matchedCategories: [validator, miner, governance, subnet, community]
+                  - rank: 2
+                    walletAddress: 5Fxyz789LongTermSubnetMinerWalletAddress999999999
+                    label: Miner across 2 subnets
+                    trustScore: 77
+                    matchedCategories: [miner, subnet]
+                total: 3
+                page: 1
+                limit: 2
+                hasNextPage: true
+                hasPreviousPage: false
+                nextCursor: Mg
+                previousCursor: null
+                sort: trustScore:desc
+                category: all
+        '400':
+          description: One or more query parameters failed validation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: 'Invalid leaderboard query parameters: limit must be between 1 and 50.'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  responses:
+    InternalError:
+      description: An unexpected error occurred while handling the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Internal server error.
+
+  examples:
+    SamplePassport:
+      summary: Demo passport profile
+      value:
+        walletAddress: 5FAbc123TAOPassportDemoWalletAddress999999999999
+        summary: Experienced Bittensor participant with validator operations, subnet activity, governance engagement, and durable community reputation.
+        level: 18
+        trustScore: 85
+        validatorScore: 92
+        minerScore: 76
+        communityScore: 87
+        yearsActive: 3.4
+        subnetParticipation:
+          - subnetId: 1
+            role: validator
+            recentActivity: Validator emissions remained above network median this week.
+            contributionWeight: 0.91
+            lastSeenAt: '2026-06-08T14:15:00.000Z'
+          - subnetId: 8
+            role: delegate
+            recentActivity: Delegate participation remained active across recent governance cycles.
+            contributionWeight: 0.84
+            lastSeenAt: '2026-06-07T09:30:00.000Z'
+          - subnetId: 19
+            role: miner
+            recentActivity: Miner submissions stayed active through the latest scoring window.
+            contributionWeight: 0.73
+            lastSeenAt: '2026-06-08T22:05:00.000Z'
+        profileMetadata:
+          firstSeenAt: '2023-02-01T00:00:00.000Z'
+          governanceVotes: 14
+          subnetsParticipated: 3
+          cache:
+            source: cache
+            cachedAt: '2026-06-16T19:20:14.115Z'
+            expiresAt: '2026-06-16T19:25:14.115Z'
+            ttlMs: 300000
+        achievements:
+          - id: validator-2-years
+            name: Validator 2 Years
+            description: Maintained validator participation across multiple market cycles.
+            category: validator
+            icon: 🏆
+            unlockedAt: '2025-02-01T00:00:00.000Z'
+        reputationSignals:
+          - name: Validator reliability
+            score: 92
+            weight: 0.32
+            source: chain
+            provenance:
+              sourceCategory: chain
+              sourceId: 'wallet:5FAbc123TAOPassportDemoWalletAddress999999999999:validator'
+              reference: validator-reliability-fixture
+              observedAt: '2026-06-08T14:15:00.000Z'
+              scoringModelVersion: tao-passport-reputation/v1
+              confidence: high
+              evidenceLinks:
+                - label: Methodology
+                  url: https://github.com/RenzoMXD/tao-passport/blob/main/docs/reputation-system.md
+        timeline:
+          - id: first-seen
+            title: Wallet first observed
+            description: Wallet began accumulating public Bittensor ecosystem history.
+            occurredAt: '2023-02-01T00:00:00.000Z'
+            source: chain
+            provenance:
+              sourceCategory: chain
+              sourceId: 'wallet:sample:first-seen'
+              reference: wallet-first-seen-fixture
+              observedAt: '2023-02-01T00:00:00.000Z'
+              scoringModelVersion: tao-passport-reputation/v1
+              confidence: high
+
+  schemas:
+    HealthResponse:
+      type: object
+      description: Liveness payload returned by the health check.
+      required: [status, service]
+      properties:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+          example: tao-passport-api
+
+    ErrorResponse:
+      type: object
+      description: Standard error envelope. All errors return a single `error` message string.
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
+          example: Invalid Substrate wallet address format.
+
+    SubnetRole:
+      type: string
+      description: A wallet's role within a Bittensor subnet.
+      enum: [validator, miner, delegate]
+
+    SubnetParticipation:
+      type: object
+      description: A wallet's participation within a single Bittensor subnet.
+      required: [subnetId, role, recentActivity, contributionWeight, lastSeenAt]
+      properties:
+        subnetId:
+          type: integer
+          description: Numeric Bittensor subnet identifier.
+          example: 1
+        role:
+          $ref: '#/components/schemas/SubnetRole'
+        recentActivity:
+          type: string
+          description: Human-readable summary of recent subnet activity.
+          example: Validator emissions remained above network median this week.
+        contributionWeight:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Relative contribution weight for the wallet within this subnet.
+          example: 0.91
+        lastSeenAt:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp the wallet was last observed in this subnet.
+          example: '2026-06-08T14:15:00.000Z'
+
+    ProfileCacheMetadata:
+      type: object
+      description: Freshness metadata for the underlying chain snapshot.
+      required: [source, cachedAt, expiresAt, ttlMs]
+      properties:
+        source:
+          type: string
+          enum: [live, cache]
+          description: Whether the snapshot was freshly loaded or served from cache.
+          example: cache
+        cachedAt:
+          type: string
+          format: date-time
+          example: '2026-06-16T19:20:14.115Z'
+        expiresAt:
+          type: string
+          format: date-time
+          example: '2026-06-16T19:25:14.115Z'
+        ttlMs:
+          type: integer
+          description: Cache time-to-live in milliseconds.
+          example: 300000
+
+    ProfileMetadata:
+      type: object
+      description: Supplementary profile metadata.
+      required: [firstSeenAt, governanceVotes, subnetsParticipated, cache]
+      properties:
+        firstSeenAt:
+          type: string
+          format: date-time
+          example: '2023-02-01T00:00:00.000Z'
+        governanceVotes:
+          type: integer
+          example: 14
+        subnetsParticipated:
+          type: integer
+          example: 3
+        cache:
+          $ref: '#/components/schemas/ProfileCacheMetadata'
+
+    ProvenanceSourceCategory:
+      type: string
+      description: Origin category for a reputation signal or timeline event.
+      enum: [chain, community, derived]
+
+    ProvenanceConfidence:
+      type: string
+      description: Confidence level attached to a provenance record.
+      enum: [high, medium, low]
+
+    ProvenanceEvidenceLink:
+      type: object
+      required: [label, url]
+      properties:
+        label:
+          type: string
+          example: Methodology
+        url:
+          type: string
+          format: uri
+          example: https://github.com/RenzoMXD/tao-passport/blob/main/docs/reputation-system.md
+
+    ProvenanceMetadata:
+      type: object
+      description: Auditable provenance for a reputation signal or timeline event.
+      required: [sourceCategory, sourceId, observedAt, scoringModelVersion, confidence]
+      properties:
+        sourceCategory:
+          $ref: '#/components/schemas/ProvenanceSourceCategory'
+        sourceId:
+          type: string
+          description: Stable identifier for the source record.
+          example: 'wallet:5FAbc123TAOPassportDemoWalletAddress999999999999:validator'
+        reference:
+          type: string
+          description: Optional reference to the originating fixture, dataset, or query.
+          example: validator-reliability-fixture
+        sourceUrl:
+          type: string
+          format: uri
+          description: Optional canonical URL for the source.
+        observedAt:
+          type: string
+          format: date-time
+          example: '2026-06-08T14:15:00.000Z'
+        scoringModelVersion:
+          type: string
+          description: Version of the scoring model that produced the value.
+          example: tao-passport-reputation/v1
+        confidence:
+          $ref: '#/components/schemas/ProvenanceConfidence'
+        evidenceLinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProvenanceEvidenceLink'
+
+    ReputationSignal:
+      type: object
+      description: A single weighted reputation signal that contributes to the trust score.
+      required: [name, score, weight, source, provenance]
+      properties:
+        name:
+          type: string
+          example: Validator reliability
+        score:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 92
+        weight:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Relative weight of this signal in the overall trust score.
+          example: 0.32
+        source:
+          $ref: '#/components/schemas/ProvenanceSourceCategory'
+        provenance:
+          $ref: '#/components/schemas/ProvenanceMetadata'
+
+    Achievement:
+      type: object
+      description: An achievement definition that can be unlocked by a wallet.
+      required: [id, name, description, category, icon, unlockedAt]
+      properties:
+        id:
+          type: string
+          example: validator-2-years
+        name:
+          type: string
+          example: Validator 2 Years
+        description:
+          type: string
+          example: Maintained validator participation across multiple market cycles.
+        category:
+          type: string
+          enum: [validator, miner, governance, community, subnet]
+          example: validator
+        icon:
+          type: string
+          description: Emoji or short icon token.
+          example: 🏆
+        unlockedAt:
+          type: string
+          format: date-time
+          example: '2025-02-01T00:00:00.000Z'
+
+    TimelineEvent:
+      type: object
+      description: A chronological wallet activity event.
+      required: [id, title, description, occurredAt, source, provenance]
+      properties:
+        id:
+          type: string
+          example: first-seen
+        title:
+          type: string
+          example: Wallet first observed
+        description:
+          type: string
+          example: Wallet began accumulating public Bittensor ecosystem history.
+        occurredAt:
+          type: string
+          format: date-time
+          example: '2023-02-01T00:00:00.000Z'
+        source:
+          type: string
+          enum: [chain, community]
+          example: chain
+        provenance:
+          $ref: '#/components/schemas/ProvenanceMetadata'
+
+    TaoPassport:
+      type: object
+      description: The full public passport profile for a wallet.
+      required:
+        - walletAddress
+        - summary
+        - level
+        - trustScore
+        - validatorScore
+        - minerScore
+        - communityScore
+        - yearsActive
+        - subnetParticipation
+        - profileMetadata
+        - achievements
+        - reputationSignals
+        - timeline
+      properties:
+        walletAddress:
+          type: string
+          example: 5FAbc123TAOPassportDemoWalletAddress999999999999
+        summary:
+          type: string
+        level:
+          type: integer
+          example: 18
+        trustScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Weighted average of the reputation signal scores.
+          example: 85
+        validatorScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 92
+        minerScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 76
+        communityScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 87
+        yearsActive:
+          type: number
+          format: float
+          description: Approximate years since the wallet was first observed.
+          example: 3.4
+        subnetParticipation:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubnetParticipation'
+        profileMetadata:
+          $ref: '#/components/schemas/ProfileMetadata'
+        achievements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Achievement'
+        reputationSignals:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReputationSignal'
+        timeline:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimelineEvent'
+
+    LeaderboardSignalCategory:
+      type: string
+      enum: [all, validator, miner, governance, subnet, community, gittensor]
+
+    LeaderboardSort:
+      type: string
+      enum: [trustScore:desc, trustScore:asc]
+
+    LeaderboardEntry:
+      type: object
+      description: A single ranked leaderboard entry.
+      required: [rank, walletAddress, label, trustScore, matchedCategories]
+      properties:
+        rank:
+          type: integer
+          minimum: 1
+          example: 1
+        walletAddress:
+          type: string
+          example: 5FAbc123TAOPassportDemoWalletAddress999999999999
+        label:
+          type: string
+          example: Validator across 3 subnets
+        trustScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 85
+        matchedCategories:
+          type: array
+          description: Signal categories this entry matched (never includes `all`).
+          items:
+            type: string
+            enum: [validator, miner, governance, subnet, community, gittensor]
+          example: [validator, miner, governance, subnet, community]
+
+    LeaderboardResponse:
+      type: object
+      description: A paginated page of ranked leaderboard entries.
+      required:
+        - items
+        - total
+        - page
+        - limit
+        - hasNextPage
+        - hasPreviousPage
+        - nextCursor
+        - previousCursor
+        - sort
+        - category
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaderboardEntry'
+        total:
+          type: integer
+          description: Total number of entries matching the current filter.
+          example: 3
+        page:
+          type: integer
+          minimum: 1
+          example: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+          example: 10
+        hasNextPage:
+          type: boolean
+          example: true
+        hasPreviousPage:
+          type: boolean
+          example: false
+        nextCursor:
+          type: string
+          nullable: true
+          description: Opaque cursor for the next page, or null when none.
+          example: Mg
+        previousCursor:
+          type: string
+          nullable: true
+          description: Opaque cursor for the previous page, or null when none.
+          example: null
+        sort:
+          $ref: '#/components/schemas/LeaderboardSort'
+        category:
+          $ref: '#/components/schemas/LeaderboardSignalCategory'
