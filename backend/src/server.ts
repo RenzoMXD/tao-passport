@@ -7,6 +7,7 @@ import { achievementsRouter } from './api/achievements/router.js';
 import { healthRouter } from './api/health/router.js';
 import { passportRouter } from './api/passport/router.js';
 import { reputationRouter } from './api/reputation/router.js';
+import { pool } from './database/client.js';
 
 dotenv.config();
 
@@ -28,6 +29,14 @@ app.use((error: Error, _request: express.Request, response: express.Response, ne
   response.status(500).json({ error: error.message });
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`TAO Passport API listening on http://localhost:${port}`);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, closing database pool...');
+  await pool.end();
+  server.close(() => {
+    process.exit(0);
+  });
 });
