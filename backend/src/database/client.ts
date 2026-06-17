@@ -11,7 +11,7 @@ export const pool = new Pool({
   allowExitOnIdle: false,
 });
 
-pool.on('error', (err, client) => {
+pool.on('error', (err) => {
   console.error('Unexpected database error on idle client', err);
 });
 
