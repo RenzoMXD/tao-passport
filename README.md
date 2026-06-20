@@ -119,6 +119,8 @@ Default local services:
 | Frontend | `http://localhost:5173` |
 | Backend API | `http://localhost:4000` |
 | Health check | `http://localhost:4000/health` |
+| Interactive API docs (Swagger UI) | `http://localhost:4000/api-docs` |
+| OpenAPI spec (JSON) | `http://localhost:4000/api-docs/openapi.json` |
 
 Start PostgreSQL when database-backed development is needed:
 
@@ -186,11 +188,29 @@ npm run build --workspace backend
 | `GET` | `/api/achievements` | Lists available achievement definitions. |
 | `GET` | `/api/reputation/signals` | Returns reputation signal metadata. |
 | `GET` | `/api/reputation/leaderboard` | Returns ranked reputation profiles. |
+| `GET` | `/api-docs` | Interactive Swagger UI for the full API. |
+| `GET` | `/api-docs/openapi.json` | Machine-readable OpenAPI 3.0 spec. |
 
 Example:
 
 ```bash
 curl http://localhost:4000/api/passport/sample
+```
+
+### Interactive API Documentation
+
+The full API is described by an [OpenAPI 3.0 specification](docs/openapi.yaml) with
+request/response schemas, error codes, query parameters, and examples for every
+endpoint. When the backend is running, browse the interactive docs at
+[`http://localhost:4000/api-docs`](http://localhost:4000/api-docs) or fetch the raw
+spec from `http://localhost:4000/api-docs/openapi.json`.
+
+The JSON spec can be imported directly into Postman, Insomnia, or an OpenAPI code
+generator to scaffold a typed client:
+
+```bash
+# Save the spec while the backend is running
+curl http://localhost:4000/api-docs/openapi.json -o openapi.json
 ```
 
 ---
@@ -236,6 +256,7 @@ Read more in `docs/architecture.md`.
 
 ## Docs
 
+- [API Reference (OpenAPI 3.0)](docs/openapi.yaml)
 - [Architecture](docs/architecture.md)
 - [Reputation System](docs/reputation-system.md)
 - [Achievements](docs/achievements.md)
